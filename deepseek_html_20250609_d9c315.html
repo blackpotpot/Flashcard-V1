@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语词汇学习卡片</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .category-filter {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50px;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .category-filter select {
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            padding: 5px 10px;
+            outline: none;
+            width: 200px;
+        }
+        
+        .card-counter {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50px;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            height: 320px;
+            perspective: 1500px;
+            cursor: pointer;
+        }
+        
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
+        
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            border-radius: 20px;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #ffffff, #f5f7fa);
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #3498db, #1a5f9e);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .card-category {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .english-word {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .chinese-meaning {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .hint {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            color: #333;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+            color: #333;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.2);
+            height: 10px;
+            border-radius: 5px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .card {
+                height: 280px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .english-word {
+                font-size: 1.6rem;
+            }
+            
+            .chinese-meaning {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-language"></i> 英语词汇学习卡片</h1>
+            <p class="subtitle">3D翻转卡片交互学习系统 - 包含商务、包装、物流、采购等专业词汇</p>
+        </header>
+        
+        <div class="controls">
+            <div class="category-filter">
+                <i class="fas fa-filter"></i>
+                <select id="categorySelect">
+                    <option value="all">所有类别</option>
+                    <option value="商务沟通 - 会议开场">商务沟通 - 会议开场</option>
+                    <option value="商务沟通 - 会议进行中">商务沟通 - 会议进行中</option>
+                    <option value="商务沟通 - 会议结束">商务沟通 - 会议结束</option>
+                    <option value="商务沟通 - 演示与报告">商务沟通 - 演示与报告</option>
+                    <option value="包装工程与材料">包装工程与材料</option>
+                    <option value="汽车KD出口与国际物流">汽车KD出口与国际物流</option>
+                    <option value="采购、成本降低与供应商管理">采购、成本降低与供应商管理</option>
+                    <option value="质量与交付管理">质量与交付管理</option>
+                    <option value="领导力与国际人才发展">领导力与国际人才发展</option>
+                </select>
+            </div>
+            
+            <div class="card-counter">
+                <i class="fas fa-clipboard-list"></i>
+                <span>卡片: <span id="currentCard">1</span>/<span id="totalCards">200</span></span>
+            </div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="cards-container" id="cardsContainer">
+            <!-- Cards will be dynamically generated here -->
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="prevBtn">
+                <i class="fas fa-arrow-left"></i> 上一组
+            </button>
+            <button class="btn btn-primary" id="nextBtn">
+                下一组 <i class="fas fa-arrow-right"></i>
+            </button>
+            <button class="btn btn-secondary" id="randomBtn">
+                <i class="fas fa-random"></i> 随机切换
+            </button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <span>已学习</span>
+                <span class="stat-value" id="learnedCount">0</span>
+            </div>
+            <div class="stat-box">
+                <span>待学习</span>
+                <span class="stat-value" id="remainingCount">200</span>
+            </div>
+            <div class="stat-box">
+                <span>掌握率</span>
+                <span class="stat-value" id="masteryRate">0%</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Vocabulary data
+        const vocabularyData = [
+            {category: "商务沟通 - 会议开场", english: "I'd like to welcome everyone here.", chinese: "我欢迎大家的到来。"},
+            {category: "商务沟通 - 会议开场", english: "Thank you for taking the time to attend today.", chinese: "感谢您今天抽出时间参加。"},
+            {category: "商务沟通 - 会议开场", english: "I appreciate everyone being here on time.", chinese: "我感谢大家准时到场。"},
+            {category: "商务沟通 - 会议开场", english: "Since everyone is here, let's get started!", chinese: "既然大家都到齐了，我们开始吧！"},
+            {category: "商务沟通 - 会议开场", english: "I'd like to arrange a meeting to discuss...", chinese: "我想安排一次会议来讨论..."},
+            {category: "商务沟通 - 会议开场", english: "The purpose of this meeting is to...", chinese: "本次会议的目的是..."},
+            {category: "商务沟通 - 会议开场", english: "Let's go around the table and introduce ourselves.", chinese: "我们轮流做一下自我介绍吧。"},
+            {category: "商务沟通 - 会议开场", english: "Could everyone just share a brief introduction, please?", chinese: "大家能简单介绍一下吗？"},
+            {category: "商务沟通 - 会议开场", english: "I'm [your name]. I'll keep this meeting brief.", chinese: "我是[您的姓名]。我将简要说明本次会议。"},
+            {category: "商务沟通 - 会议开场", english: "We're here today to discuss...", chinese: "我们今天在这里讨论..."},
+            {category: "商务沟通 - 会议开场", english: "I've called this meeting in order to...", chinese: "我召集这次会议是为了..."},
+            {category: "商务沟通 - 会议开场", english: "There are [number] items on the agenda. First...", chinese: "议程上有[数字]项。首先..."},
+            {category: "商务沟通 - 会议进行中", english: "I completely agree!", chinese: "我完全同意！"},
+            {category: "商务沟通 - 会议进行中", english: "I'm right there with you.", chinese: "我完全赞同您的观点。"},
+            {category: "商务沟通 - 会议进行中", english: "That's a great point.", chinese: "那是个很好的观点。"},
+            {category: "商务沟通 - 会议进行中", english: "I have to agree with [name].", chinese: "我不得不认同[姓名]的观点。"},
+            {category: "商务沟通 - 会议进行中", english: "That's also how I see it.", chinese: "我也是这么看的。"},
+            {category: "商务沟通 - 会议进行中", english: "Would it be possible...?", chinese: "是否有可能...?"},
+            {category: "商务沟通 - 会议进行中", english: "Have you ever thought about...?", chinese: "您有没有想过...?"},
+            {category: "商务沟通 - 会议进行中", english: "Maybe we could...?", chinese: "也许我们可以...?"},
+            {category: "商务沟通 - 会议进行中", english: "Why don't we...?", chinese: "我们为什么不...?"},
+            {category: "商务沟通 - 会议进行中", english: "I think we should try...", chinese: "我认为我们应该尝试..."},
+            {category: "商务沟通 - 会议进行中", english: "Perhaps it would be best if...", chinese: "也许最好是..."},
+            {category: "商务沟通 - 会议进行中", english: "Let's move on to...", chinese: "我们继续讨论..."},
+            {category: "商务沟通 - 会议进行中", english: "Now that we've covered that, we can talk about...", chinese: "既然我们已经讨论了那一点，我们可以谈谈..."},
+            {category: "商务沟通 - 会议进行中", english: "I'd like to hand it over to [name].", chinese: "我想把发言权交给[姓名]。"},
+            {category: "商务沟通 - 会议进行中", english: "I'm going to give the floor to [name].", chinese: "我要把发言权交给[姓名]。"},
+            {category: "商务沟通 - 会议进行中", english: "Sorry, but just to clarify...", chinese: "抱歉，只是想澄清一下..."},
+            {category: "商务沟通 - 会议进行中", english: "Could you explain it from a different angle?", chinese: "您能从另一个角度解释一下吗？"},
+            {category: "商务沟通 - 会议进行中", english: "Just to be clear, do you mean this [repeat point]?", chinese: "只是为了明确，您是指这个[重复要点]吗？"},
+            {category: "商务沟通 - 会议进行中", english: "Can you repeat that please?", chinese: "您能重复一下吗？"},
+            {category: "商务沟通 - 会议进行中", english: "I don't fully understand what you mean.", chinese: "我不太明白您的意思。"},
+            {category: "商务沟通 - 会议进行中", english: "Are there any more comments?", chinese: "还有其他意见吗？"},
+            {category: "商务沟通 - 会议进行中", english: "What do you think about this proposal?", chinese: "您对这个提议有什么看法？"},
+            {category: "商务沟通 - 会议进行中", english: "I'm afraid that's outside the scope of this meeting.", chinese: "恐怕这超出了本次会议的范围。"},
+            {category: "商务沟通 - 会议进行中", english: "We've gone slightly off topic, let us get back to [main agenda].", chinese: "我们有点跑题了，让我们回到[主要议程]。"},
+            {category: "商务沟通 - 会议结束", english: "To summarize, we've discussed...", chinese: "总结一下，我们讨论了..."},
+            {category: "商务沟通 - 会议结束", english: "Before we finish, let's recap our main points.", chinese: "在结束之前，我们来回顾一下主要观点。"},
+            {category: "商务沟通 - 会议结束", english: "Here are the three main takeaways from our meeting.", chinese: "这是我们会议的三个主要收获。"},
+            {category: "商务沟通 - 会议结束", english: "If there's nothing more to discuss, I think we can wrap it up here.", chinese: "如果没有其他要讨论的了，我想我们可以到此结束了。"},
+            {category: "商务沟通 - 会议结束", english: "That seems to cover everything for today.", chinese: "今天的事情好像都谈完了。"},
+            {category: "商务沟通 - 会议结束", english: "Thanks to everyone who was able to join today.", chinese: "感谢今天所有能参加的人。"},
+            {category: "商务沟通 - 会议结束", english: "Shall we set up another meeting?", chinese: "我们要不要再安排一次会议？"},
+            {category: "商务沟通 - 会议结束", english: "[Name], can you have these action points finished by next week's meeting?", chinese: "[姓名]，您能在下周会议前完成这些行动要点吗？"},
+            {category: "商务沟通 - 演示与报告", english: "Today we're here to discuss the progress on [project name].", chinese: "今天我们在这里讨论[项目名称]的进展。"},
+            {category: "商务沟通 - 演示与报告", english: "The presentation will cover these [number] topics.", chinese: "本次演示将涵盖这[数字]个主题。"},
+            {category: "商务沟通 - 演示与报告", english: "To summarize then, let me just run through what we've agreed here.", chinese: "那么总结一下，我来回顾一下我们在这里达成的共识。"},
+            {category: "商务沟通 - 演示与报告", english: "That brings me to the end of my presentation, thank you for listening.", chinese: "我的演示到此结束，感谢您的聆听。"},
+            {category: "商务沟通 - 演示与报告", english: "Any final thoughts before we close the meeting?", chinese: "在我们结束会议之前，还有什么最终想法吗？"},
+            {category: "商务沟通 - 演示与报告", english: "If you have further questions, you can send me an email.", chinese: "如果您有进一步的问题，可以给我发邮件。"},
+            {category: "包装工程与材料", english: "packaging material", chinese: "包装材料"},
+            {category: "包装工程与材料", english: "packaging container", chinese: "包装容器"},
+            {category: "包装工程与材料", english: "packaging aid", chinese: "包装辅助工具"},
+            {category: "包装工程与材料", english: "transport packaging", chinese: "运输包装"},
+            {category: "包装工程与材料", english: "outer packaging", chinese: "外包装"},
+            {category: "包装工程与材料", english: "sales packaging", chinese: "销售包装"},
+            {category: "包装工程与材料", english: "primary packaging", chinese: "初级包装"},
+            {category: "包装工程与材料", english: "secondary packaging", chinese: "二级包装"},
+            {category: "包装工程与材料", english: "shelf-ready packaging (SRP)", chinese: "货架就绪包装"},
+            {category: "包装工程与材料", english: "shelf appeal", chinese: "货架吸引力"},
+            {category: "包装工程与材料", english: "disposable packaging", chinese: "一次性包装"},
+            {category: "包装工程与材料", english: "returnable packaging", chinese: "可回收包装"},
+            {category: "包装工程与材料", english: "barrier", chinese: "阻隔性"},
+            {category: "包装工程与材料", english: "adhesion", chinese: "附着力"},
+            {category: "包装工程与材料", english: "conformability", chinese: "可变形性"},
+            {category: "包装工程与材料", english: "flexibility", chinese: "柔韧性"},
+            {category: "包装工程与材料", english: "clarity", chinese: "透明度"},
+            {category: "包装工程与材料", english: "gloss", chinese: "光泽度"},
+            {category: "包装工程与材料", english: "opacity", chinese: "不透明度"},
+            {category: "包装工程与材料", english: "permeability", chinese: "渗透性"},
+            {category: "包装工程与材料", english: "viscosity", chinese: "粘度"},
+            {category: "包装工程与材料", english: "corrugated board", chinese: "瓦楞纸板"},
+            {category: "包装工程与材料", english: "paperboard", chinese: "纸板"},
+            {category: "包装工程与材料", english: "linerboard", chinese: "面纸"},
+            {category: "包装工程与材料", english: "fluting", chinese: "瓦楞芯纸"},
+            {category: "包装工程与材料", english: "double-wall carton", chinese: "双层瓦楞纸箱"},
+            {category: "包装工程与材料", english: "single-wall carton", chinese: "单层瓦楞纸箱"},
+            {category: "包装工程与材料", english: "chipboard", chinese: "碎纸板"},
+            {category: "包装工程与材料", english: "Kraft", chinese: "牛皮纸"},
+            {category: "包装工程与材料", english: "bleached Kraft", chinese: "漂白牛皮纸"},
+            {category: "包装工程与材料", english: "anti slip paper", chinese: "防滑纸"},
+            {category: "包装工程与材料", english: "PVC (Polyvinyl Chloride)", chinese: "聚氯乙烯"},
+            {category: "包装工程与材料", english: "PP (Polypropylene)", chinese: "聚丙烯"},
+            {category: "包装工程与材料", english: "PE (Polyethylene)", chinese: "聚乙烯"},
+            {category: "包装工程与材料", english: "PET (Polyester/Polyethylene Terephthalate)", chinese: "聚对苯二甲酸乙二醇酯"},
+            {category: "包装工程与材料", english: "HDPE (High-Density Polyethylene)", chinese: "高密度聚乙烯"},
+            {category: "包装工程与材料", english: "EPS (Expanded Polystyrene)", chinese: "发泡聚苯乙烯"},
+            {category: "包装工程与材料", english: "EPE (Expanded Polyethylene)", chinese: "发泡聚乙烯"},
+            {category: "包装工程与材料", english: "thermoplastic", chinese: "热塑性塑料"},
+            {category: "包装工程与材料", english: "polymer", chinese: "聚合物"},
+            {category: "包装工程与材料", english: "resin", chinese: "树脂"},
+            {category: "包装工程与材料", english: "foam-in-place", chinese: "现场发泡"},
+            {category: "包装工程与材料", english: "bubble wrap", chinese: "气泡膜"},
+            {category: "包装工程与材料", english: "iron frame/box", chinese: "铁架/铁箱"},
+            {category: "包装工程与材料", english: "wood pallet", chinese: "木托盘"},
+            {category: "包装工程与材料", english: "wooden box", chinese: "木箱"},
+            {category: "包装工程与材料", english: "sheet metal", chinese: "金属板"},
+            {category: "包装工程与材料", english: "aluminum foil", chinese: "铝箔"},
+            {category: "包装工程与材料", english: "lumber", chinese: "木材"},
+            {category: "包装工程与材料", english: "anti-block", chinese: "防粘连剂"},
+            {category: "包装工程与材料", english: "biaxial orientation", chinese: "双向拉伸"},
+            {category: "包装工程与材料", english: "cast film", chinese: "流延膜"},
+            {category: "包装工程与材料", english: "blown film", chinese: "吹塑膜"},
+            {category: "包装工程与材料", english: "co-extrusion", chinese: "共挤出"},
+            {category: "包装工程与材料", english: "heat-sealable film", chinese: "热封膜"},
+            {category: "包装工程与材料", english: "shrink film", chinese: "收缩膜"},
+            {category: "包装工程与材料", english: "stretch film", chinese: "缠绕膜"},
+            {category: "包装工程与材料", english: "anti-rust film (VCI)", chinese: "防锈膜（气相防锈剂）"},
+            {category: "包装工程与材料", english: "mold", chinese: "模具"},
+            {category: "包装工程与材料", english: "cavity", chinese: "型腔"},
+            {category: "包装工程与材料", english: "finish", chinese: "瓶口"},
+            {category: "包装工程与材料", english: "neck", chinese: "瓶颈"},
+            {category: "包装工程与材料", english: "body", chinese: "瓶身"},
+            {category: "包装工程与材料", english: "closure", chinese: "封盖"},
+            {category: "包装工程与材料", english: "hinge", chinese: "铰链"},
+            {category: "包装工程与材料", english: "fitment", chinese: "配件"},
+            {category: "包装工程与材料", english: "parison", chinese: "型坯"},
+            {category: "包装工程与材料", english: "preform", chinese: "预成型件"},
+            {category: "包装工程与材料", english: "prototype", chinese: "原型"},
+            {category: "包装工程与材料", english: "blow molding", chinese: "吹塑"},
+            {category: "包装工程与材料", english: "thermoforming", chinese: "热成型"},
+            {category: "包装工程与材料", english: "extrusion", chinese: "挤出"},
+            {category: "包装工程与材料", english: "injection molding", chinese: "注塑"},
+            {category: "包装工程与材料", english: "heat sealing", chinese: "热封"},
+            {category: "包装工程与材料", english: "impulse sealing", chinese: "脉冲封口"},
+            {category: "包装工程与材料", english: "die cutting", chinese: "模切"},
+            {category: "包装工程与材料", english: "laminating", chinese: "层压"},
+            {category: "包装工程与材料", english: "coating", chinese: "涂布"},
+            {category: "包装工程与材料", english: "corona treatment", chinese: "电晕处理"},
+            {category: "包装工程与材料", english: "burst strength", chinese: "爆破强度"},
+            {category: "包装工程与材料", english: "tear strength", chinese: "撕裂强度"},
+            {category: "包装工程与材料", english: "impact strength", chinese: "冲击强度"},
+            {category: "包装工程与材料", english: "abrasion resistance", chinese: "耐磨性"},
+            {category: "包装工程与材料", english: "vibration test", chinese: "振动测试"},
+            {category: "包装工程与材料", english: "drop test", chinese: "跌落测试"},
+            {category: "包装工程与材料", english: "chemical resistance", chinese: "耐化学性"},
+            {category: "包装工程与材料", english: "hermetic seal", chinese: "气密密封"},
+            {category: "包装工程与材料", english: "MVTR (Moisture Vapor Transmission Rate)", chinese: "水蒸气透过率"},
+            {category: "包装工程与材料", english: "OTR (Oxygen Transmission Rate)", chinese: "氧气透过率"},
+            {category: "包装工程与材料", english: "coefficient of friction (COF)", chinese: "摩擦系数"},
+            {category: "包装工程与材料", english: "gauge", chinese: "厚度"},
+            {category: "包装工程与材料", english: "caliper", chinese: "卡尺"},
+            {category: "包装工程与材料", english: "dimensional stability", chinese: "尺寸稳定性"},
+            {category: "汽车KD出口与国际物流", english: "Knock-down kit (KD)", chinese: "散件套件"},
+            {category: "汽车KD出口与国际物流", english: "Complete Knock-Down (CKD)", chinese: "全散件套件"},
+            {category: "汽车KD出口与国际物流", english: "Semi-Knocked-Down kit (SKD)", chinese: "半散件套件"},
+            {category: "汽车KD出口与国际物流", english: "Knocked-Down Export (KDX)", chinese: "散件出口"},
+            {category: "汽车KD出口与国际物流", english: "Completely Built Up (CBU)", chinese: "整车出口"},
+            {category: "汽车KD出口与国际物流", english: "Built-Up Export (BUX)", chinese: "整车出口"},
+            {category: "汽车KD出口与国际物流", english: "disassembled", chinese: "拆卸"},
+            {category: "汽车KD出口与国际物流", english: "reassembly", chinese: "重新组装"},
+            {category: "汽车KD出口与国际物流", english: "local content regulations", chinese: "本地化生产法规"},
+            {category: "汽车KD出口与国际物流", english: "import substitution", chinese: "进口替代"},
+            {category: "汽车KD出口与国际物流", english: "export", chinese: "出口"},
+            {category: "汽车KD出口与国际物流", english: "import", chinese: "进口"},
+            {category: "汽车KD出口与国际物流", english: "freight", chinese: "运费"},
+            {category: "汽车KD出口与国际物流", english: "cargo", chinese: "货物"},
+            {category: "汽车KD出口与国际物流", english: "shipment", chinese: "装运"},
+            {category: "汽车KD出口与国际物流", english: "customs", chinese: "海关"},
+            {category: "汽车KD出口与国际物流", english: "duties", chinese: "关税"},
+            {category: "汽车KD出口与国际物流", english: "taxes", chinese: "税费"},
+            {category: "汽车KD出口与国际物流", english: "Incoterms", chinese: "国际贸易术语"},
+            {category: "汽车KD出口与国际物流", english: "CFR (Cost and Freight)", chinese: "成本加运费"},
+            {category: "汽车KD出口与国际物流", english: "CIF (Cost, Insurance and Freight)", chinese: "成本、保险加运费"},
+            {category: "汽车KD出口与国际物流", english: "CIP (Carriage and Insurance Paid To)", chinese: "运费及保险费付至"},
+            {category: "汽车KD出口与国际物流", english: "EXW (Ex Works)", chinese: "工厂交货"},
+            {category: "汽车KD出口与国际物流", english: "FOB (Free On Board)", chinese: "船上交货"},
+            {category: "汽车KD出口与国际物流", english: "FAS (Free Alongside Ship)", chinese: "船边交货"},
+            {category: "汽车KD出口与国际物流", english: "DAP (Delivered at Place)", chinese: "目的地交货"},
+            {category: "汽车KD出口与国际物流", english: "DDP (Delivered Duty Paid)", chinese: "完税后交货"},
+            {category: "汽车KD出口与国际物流", english: "DAT (Delivered at Terminal)", chinese: "目的地港口或指定地点交货"},
+            {category: "汽车KD出口与国际物流", english: "freight forwarder", chinese: "货运代理"},
+            {category: "汽车KD出口与国际物流", english: "shipping container", chinese: "集装箱"},
+            {category: "汽车KD出口与国际物流", english: "bulk-packed", chinese: "散装"},
+            {category: "汽车KD出口与国际物流", english: "lead time", chinese: "交货期"},
+            {category: "汽车KD出口与国际物流", english: "estimated time of arrival (ETA)", chinese: "预计到达时间"},
+            {category: "汽车KD出口与国际物流", english: "estimated time of departure (ETD)", chinese: "预计发货时间"},
+            {category: "汽车KD出口与国际物流", english: "tracking number", chinese: "追踪号"},
+            {category: "汽车KD出口与国际物流", english: "route optimization", chinese: "路线优化"},
+            {category: "汽车KD出口与国际物流", english: "supply chain visibility", chinese: "供应链可见性"},
+            {category: "汽车KD出口与国际物流", english: "hub-and-spoke model", chinese: "枢纽辐射模式"},
+            {category: "汽车KD出口与国际物流", english: "third-party logistics (3PL)", chinese: "第三方物流"},
+            {category: "汽车KD出口与国际物流", english: "just-in-time (JIT) delivery", chinese: "准时制交付"},
+            {category: "汽车KD出口与国际物流", english: "supply chain", chinese: "供应链"},
+            {category: "汽车KD出口与国际物流", english: "supply chain management (SCM)", chinese: "供应链管理"},
+            {category: "汽车KD出口与国际物流", english: "distribution network", chinese: "分销网络"},
+            {category: "汽车KD出口与国际物流", english: "inventory management", chinese: "库存管理"},
+            {category: "汽车KD出口与国际物流", english: "accurate stock control", chinese: "准确库存控制"},
+            {category: "汽车KD出口与国际物流", english: "quick replenishment", chinese: "快速补货"},
+            {category: "汽车KD出口与国际物流", english: "traceability", chinese: "可追溯性"},
+            {category: "汽车KD出口与国际物流", english: "inventory optimization", chinese: "库存优化"},
+            {category: "汽车KD出口与国际物流", english: "order fulfillment", chinese: "订单履行"},
+            {category: "汽车KD出口与国际物流", english: "order picking", chinese: "订单拣选"},
+            {category: "汽车KD出口与国际物流", english: "order processing", chinese: "订单处理"},
+            {category: "汽车KD出口与国际物流", english: "warehousing", chinese: "仓储"},
+            {category: "汽车KD出口与国际物流", english: "inbound logistics", chinese: "入库物流"},
+            {category: "汽车KD出口与国际物流", english: "outbound logistics", chinese: "出库物流"},
+            {category: "汽车KD出口与国际物流", english: "cross-docking", chinese: "交叉转运"},
+            {category: "汽车KD出口与国际物流", english: "consolidation", chinese: "整合"},
+            {category: "汽车KD出口与国际物流", english: "unit loads", chinese: "单元载荷"},
+            {category: "采购、成本降低与供应商管理", english: "procurement", chinese: "采购"},
+            {category: "采购、成本降低与供应商管理", english: "purchasing", chinese: "购买"},
+            {category: "采购、成本降低与供应商管理", english: "strategic sourcing", chinese: "战略采购"},
+            {category: "采购、成本降低与供应商管理", english: "indirect procurement", chinese: "间接采购"},
+            {category: "采购、成本降低与供应商管理", english: "direct procurement", chinese: "直接采购"},
+            {category: "采购、成本降低与供应商管理", english: "acquisition", chinese: "购置"},
+            {category: "采购、成本降低与供应商管理", english: "need", chinese: "需求"},
+            {category: "采购、成本降低与供应商管理", english: "market research", chinese: "市场调研"},
+            {category: "采购、成本降低与供应商管理", english: "specification", chinese: "规格"},
+            {category: "采购、成本降低与供应商管理", english: "contract", chinese: "合同"},
+            {category: "采购、成本降低与供应商管理", english: "agreement", chinese: "协议"},
+            {category: "采购、成本降低与供应商管理", english: "purchase order (PO)", chinese: "采购订单"},
+            {category: "采购、成本降低与供应商管理", english: "invoice", chinese: "发票"},
+            {category: "采购、成本降低与供应商管理", english: "quotation", chinese: "报价"},
+            {category: "采购、成本降低与供应商管理", english: "bid", chinese: "投标"},
+            {category: "采购、成本降低与供应商管理", english: "tender", chinese: "招标"},
+            {category: "采购、成本降低与供应商管理", english: "request for information (RFI)", chinese: "信息征询书"},
+            {category: "采购、成本降低与供应商管理", english: "request for proposal (RFP)", chinese: "建议书征询书"},
+            {category: "采购、成本降低与供应商管理", english: "request for quotation (RFQ)", chinese: "报价征询书"},
+            {category: "采购、成本降低与供应商管理", english: "requisition", chinese: "请购单"},
+            {category: "采购、成本降低与供应商管理", english: "payment terms", chinese: "支付条款"},
+            {category: "采购、成本降低与供应商管理", english: "procure-to-pay (P2P)", chinese: "从采购到付款"},
+            {category: "采购、成本降低与供应商管理", english: "source-to-pay (S2P)", chinese: "从寻源到付款"},
+            {category: "采购、成本降低与供应商管理", english: "negotiation", chinese: "谈判"},
+            {category: "采购、成本降低与供应商管理", english: "bid evaluation", chinese: "投标评估"},
+            {category: "采购、成本降低与供应商管理", english: "contract management", chinese: "合同管理"},
+            {category: "采购、成本降低与供应商管理", english: "compliance", chinese: "合规性"},
+            {category: "采购、成本降低与供应商管理", english: "centralized purchasing", chinese: "集中采购"},
+            {category: "采购、成本降低与供应商管理", english: "decentralized purchasing", chinese: "分散采购"},
+            {category: "采购、成本降低与供应商管理", english: "cost reduction", chinese: "成本降低"},
+            {category: "采购、成本降低与供应商管理", english: "cost cutting", chinese: "成本削减"},
+            {category: "采购、成本降低与供应商管理", english: "cost avoidance", chinese: "成本规避"},
+            {category: "采购、成本降低与供应商管理", english: "total cost of ownership (TCO)", chinese: "总拥有成本"},
+            {category: "采购、成本降低与供应商管理", english: "capital expenditure (Capex)", chinese: "资本支出"},
+            {category: "采购、成本降低与供应商管理", english: "operating expenses (Opex)", chinese: "运营费用"},
+            {category: "采购、成本降低与供应商管理", english: "maverick spending", chinese: "非计划性支出"},
+            {category: "采购、成本降低与供应商管理", english: "volume discounts", chinese: "批量折扣"},
+            {category: "采购、成本降低与供应商管理", english: "economies of scale", chinese: "规模经济"},
+            {category: "采购、成本降低与供应商管理", english: "value analysis", chinese: "价值分析"},
+            {category: "采购、成本降低与供应商管理", english: "value engineering", chinese: "价值工程"},
+            {category: "采购、成本降低与供应商管理", english: "cost-benefit analysis", chinese: "成本效益分析"},
+            {category: "采购、成本降低与供应商管理", english: "renegotiating supplier contracts", chinese: "与供应商重新谈判合同"},
+            {category: "采购、成本降低与供应商管理", english: "optimizing inventory", chinese: "优化库存"},
+            {category: "采购、成本降低与供应商管理", english: "automating manual tasks", chinese: "自动化手动任务"},
+            {category: "采购、成本降低与供应商管理", english: "leveraging technology", chinese: "利用技术"},
+            {category: "采购、成本降低与供应商管理", english: "consolidating vendors", chinese: "整合供应商"},
+            {category: "采购、成本降低与供应商管理", english: "outsourcing", chinese: "外包"},
+            {category: "采购、成本降低与供应商管理", english: "category management", chinese: "品类管理"},
+            {category: "采购、成本降低与供应商管理", english: "standardizing products/services", chinese: "标准化产品/服务"},
+            {category: "采购、成本降低与供应商管理", english: "supplier", chinese: "供应商"},
+            {category: "采购、成本降低与供应商管理", english: "vendor", chinese: "销售商"},
+            {category: "采购、成本降低与供应商管理", english: "supplier relationship management (SRM)", chinese: "供应商关系管理"},
+            {category: "采购、成本降低与供应商管理", english: "customer of choice", chinese: "首选客户"},
+            {category: "采购、成本降低与供应商管理", english: "supplier capabilities", chinese: "供应商能力"},
+            {category: "采购、成本降低与供应商管理", english: "supplier diversification", chinese: "供应商多元化"},
+            {category: "采购、成本降低与供应商管理", english: "supplier vetting", chinese: "供应商审查"},
+            {category: "采购、成本降低与供应商管理", english: "supplier performance management", chinese: "供应商绩效管理"},
+            {category: "采购、成本降低与供应商管理", english: "long-term partnerships", chinese: "长期合作关系"},
+            {category: "采购、成本降低与供应商管理", english: "mutual growth", chinese: "共同成长"},
+            {category: "采购、成本降低与供应商管理", english: "value creation", chinese: "价值创造"},
+            {category: "采购、成本降低与供应商管理", english: "win-win mindset", chinese: "双赢心态"},
+            {category: "采购、成本降低与供应商管理", english: "Thank you for your offer.", chinese: "感谢您的报价。"},
+            {category: "采购、成本降低与供应商管理", english: "Thanks for responding so quickly.", chinese: "感谢您如此迅速地回复。"},
+            {category: "采购、成本降低与供应商管理", english: "As you know, we have worked together successfully for many years now.", chinese: "如您所知，我们已经成功合作多年。"},
+            {category: "采购、成本降低与供应商管理", english: "We would certainly like to work with you on the project in the future.", chinese: "我们当然希望未来能与您在这个项目上合作。"},
+            {category: "采购、成本降低与供应商管理", english: "The price conditions are currently too high.", chinese: "目前的价格条件太高了。"},
+            {category: "采购、成本降低与供应商管理", english: "Our target price is xx euros.", chinese: "我们的目标价格是XX欧元。"},
+            {category: "采购、成本降低与供应商管理", english: "I'm afraid that you will have to reduce the price to be considered.", chinese: "恐怕您必须降价才能被考虑。"},
+            {category: "采购、成本降低与供应商管理", english: "I would be grateful if you checked your offer again.", chinese: "如果您能再次检查您的报价，我将不胜感激。"},
+            {category: "采购、成本降低与供应商管理", english: "Could you possibly send me a new offer?", chinese: "您能给我发一份新的报价吗？"},
+            {category: "采购、成本降低与供应商管理", english: "Due to time constraints, it would be best if you accepted the standard contract.", chinese: "由于时间限制，您最好接受标准合同。"},
+            {category: "质量与交付管理", english: "quality management system", chinese: "质量管理体系"},
+            {category: "质量与交付管理", english: "quality assurance (QA)", chinese: "质量保证"},
+            {category: "质量与交付管理", english: "quality control (QC)", chinese: "质量控制"},
+            {category: "质量与交付管理", english: "inspection", chinese: "检验"},
+            {category: "质量与交付管理", english: "auditing", chinese: "审计"},
+            {category: "质量与交付管理", english: "compliance", chinese: "合规性"},
+            {category: "质量与交付管理", english: "specification compliance", chinese: "规格符合性"},
+            {category: "质量与交付管理", english: "defects", chinese: "缺陷"},
+            {category: "质量与交付管理", english: "first pass yield", chinese: "一次通过率"},
+            {category: "质量与交付管理", english: "continuous improvement", chinese: "持续改进"},
+            {category: "质量与交付管理", english: "standard operating procedures (SOPs)", chinese: "标准操作程序"},
+            {category: "质量与交付管理", english: "maintenance strategy", chinese: "维护策略"},
+            {category: "质量与交付管理", english: "process improvement", chinese: "流程改进"},
+            {category: "质量与交付管理", english: "risk management", chinese: "风险管理"},
+            {category: "质量与交付管理", english: "corrective action", chinese: "纠正措施"},
+            {category: "质量与交付管理", english: "quality standards", chinese: "质量标准"},
+            {category: "质量与交付管理", english: "on-time delivery (OTD)", chinese: "准时交付"},
+            {category: "质量与交付管理", english: "delivery accuracy", chinese: "交付准确性"},
+            {category: "质量与交付管理", english: "damage-free delivery rate", chinese: "无损交付率"},
+            {category: "质量与交付管理", english: "order fulfillment", chinese: "订单履行"},
+            {category: "质量与交付管理", english: "order fulfillment rate", chinese: "订单履行率"},
+            {category: "质量与交付管理", english: "backorder", chinese: "缺货订单"},
+            {category: "质量与交付管理", english: "dispatch", chinese: "发货"},
+            {category: "质量与交付管理", english: "transportation", chinese: "运输"},
+            {category: "质量与交付管理", english: "root cause analysis", chinese: "根本原因分析"},
+            {category: "质量与交付管理", english: "data-driven decisions", chinese: "数据驱动决策"},
+            {category: "质量与交付管理", english: "mitigate risks", chinese: "降低风险"},
+            {category: "质量与交付管理", english: "contingency plan", chinese: "应急计划"},
+            {category: "质量与交付管理", english: "reroute shipment", chinese: "重新安排运输路线"},
+            {category: "质量与交付管理", english: "Your performance has fallen below expectations.", chinese: "您的表现低于预期。"},
+            {category: "质量与交付管理", english: "Let's work together to address this issue.", chinese: "让我们一起解决这个问题。"},
+            {category: "领导力与国际人才发展", english: "vision", chinese: "愿景"},
+            {category: "领导力与国际人才发展", english: "empathy", chinese: "同理心"},
+            {category: "领导力与国际人才发展", english: "integrity", chinese: "正直"},
+            {category: "领导力与国际人才发展", english: "resilience", chinese: "韧性"},
+            {category: "领导力与国际人才发展", english: "influence", chinese: "影响力"},
+            {category: "领导力与国际人才发展", english: "accountability", chinese: "责任感"},
+            {category: "领导力与国际人才发展", english: "delegation", chinese: "授权"},
+            {category: "领导力与国际人才发展", english: "innovation", chinese: "创新"},
+            {category: "领导力与国际人才发展", english: "collaboration", chinese: "协作"},
+            {category: "领导力与国际人才发展", english: "charisma", chinese: "魅力"},
+            {category: "领导力与国际人才发展", english: "decisiveness", chinese: "果断"},
+            {category: "领导力与国际人才发展", english: "empowerment", chinese: "赋能"},
+            {category: "领导力与国际人才发展", english: "adaptability", chinese: "适应性"},
+            {category: "领导力与国际人才发展", english: "strategic thinking", chinese: "战略思维"},
+            {category: "领导力与国际人才发展", english: "emotional intelligence", chinese: "情商"},
+            {category: "领导力与国际人才发展", english: "communication", chinese: "沟通"},
+            {category: "领导力与国际人才发展", english: "passion", chinese: "热情"},
+            {category: "领导力与国际人才发展", english: "humility", chinese: "谦逊"},
+            {category: "领导力与国际人才发展", english: "spearheaded", chinese: "率先"},
+            {category: "领导力与国际人才发展", english: "shaped", chinese: "塑造"},
+            {category: "领导力与国际人才发展", english: "optimized", chinese: "优化"},
+            {category: "领导力与国际人才发展", english: "modernized", chinese: "现代化"},
+            {category: "领导力与国际人才发展", english: "advocated", chinese: "倡导"},
+            {category: "领导力与国际人才发展", english: "pioneered", chinese: "开创"},
+            {category: "领导力与国际人才发展", english: "piloted", chinese: "试点"},
+            {category: "领导力与国际人才发展", english: "trained", chinese: "培训"},
+            {category: "领导力与国际人才发展", english: "orchestrated", chinese: "组织"},
+            {category: "领导力与国际人才发展", english: "cultivated", chinese: "培养"},
+            {category: "领导力与国际人才发展", english: "streamlined", chinese: "精简"},
+            {category: "领导力与国际人才发展", english: "championed", chinese: "拥护"},
+            {category: "领导力与国际人才发展", english: "galvanized", chinese: "激励"},
+            {category: "领导力与国际人才发展", english: "transformed", chinese: "转型"},
+            {category: "领导力与国际人才发展", english: "leveraged", chinese: "利用"},
+            {category: "领导力与国际人才发展", english: "redesigned", chinese: "重新设计"},
+            {category: "领导力与国际人才发展", english: "mentored", chinese: "指导"},
+            {category: "领导力与国际人才发展", english: "accelerated", chinese: "加速"},
+            {category: "领导力与国际人才发展", english: "revitalized", chinese: "振兴"},
+            {category: "领导力与国际人才发展", english: "conceptualized", chinese: "构思"},
+            {category: "领导力与国际人才发展", english: "engineered", chinese: "设计"},
+            {category: "领导力与国际人才发展", english: "catalyzed", chinese: "催化"},
+            {category: "领导力与国际人才发展", english: "revolutionized", chinese: "革新"},
+            {category: "领导力与国际人才发展", english: "instituted", chinese: "建立"},
+            {category: "领导力与国际人才发展", english: "navigated", chinese: "驾驭"},
+            {category: "领导力与国际人才发展", english: "empowered", chinese: "授权"},
+            {category: "领导力与国际人才发展", english: "consolidated", chinese: "整合"},
+            {category: "领导力与国际人才发展", english: "amplified", chinese: "增强"},
+            {category: "领导力与国际人才发展", english: "harmonized", chinese: "协调"},
+            {category: "领导力与国际人才发展", english: "fortified", chinese: "巩固"},
+            {category: "领导力与国际人才发展", english: "propelled", chinese: "推动"},
+            {category: "领导力与国际人才发展", english: "overhauled", chinese: "彻底改革"},
+            {category: "领导力与国际人才发展", english: "synthesized", chinese: "综合"},
+            {category: "领导力与国际人才发展", english: "elevated", chinese: "提升"},
+            {category: "领导力与国际人才发展", english: "expedited", chinese: "加速"},
+            {category: "领导力与国际人才发展", english: "realigned", chinese: "调整"},
+            {category: "领导力与国际人才发展", english: "negotiated", chinese: "谈判"},
+            {category: "领导力与国际人才发展", english: "standardized", chinese: "标准化"},
+            {category: "领导力与国际人才发展", english: "mobilized", chinese: "动员"},
+            {category: "领导力与国际人才发展", english: "innovated", chinese: "创新"},
+            {category: "领导力与国际人才发展", english: "reimagined", chinese: "重塑"},
+            {category: "领导力与国际人才发展", english: "unified", chinese: "统一"},
+            {category: "领导力与国际人才发展", english: "crystallized", chinese: "明确"},
+            {category: "领导力与国际人才发展", english: "international assignment", chinese: "国际派遣"},
+            {category: "领导力与国际人才发展", english: "global mobility", chinese: "全球人才流动"},
+            {category: "领导力与国际人才发展", english: "short-term assignment", chinese: "短期派遣"},
+            {category: "领导力与国际人才发展", english: "long-term assignment", chinese: "长期派遣"},
+            {category: "领导力与国际人才发展", english: "international commuter assignment", chinese: "国际通勤派遣"},
+            {category: "领导力与国际人才发展", english: "extended business travel (EBT)", chinese: "延长商务旅行"},
+            {category: "领导力与国际人才发展", english: "relocation", chinese: "搬迁"},
+            {category: "领导力与国际人才发展", english: "expatriate", chinese: "外派人员"},
+            {category: "领导力与国际人才发展", english: "repatriation", chinese: "回国"},
+            {category: "领导力与国际人才发展", english: "reverse culture shock", chinese: "逆向文化冲击"},
+            {category: "领导力与国际人才发展", english: "cultural training", chinese: "文化培训"},
+            {category: "领导力与国际人才发展", english: "global talent development", chinese: "全球人才发展"},
+            {category: "领导力与国际人才发展", english: "key performance indicators (KPIs)", chinese: "关键绩效指标"},
+            {category: "领导力与国际人才发展", english: "relocation assistance", chinese: "搬迁援助"},
+            {category: "领导力与国际人才发展", english: "geopolitical risk", chinese: "地缘政治风险"},
+            {category: "领导力与国际人才发展", english: "cost forecasting", chinese: "成本预测"}
+        ];
+
+        // App state
+        let currentGroup = 0;
+        const groupSize = 5;
+        const totalGroups = Math.ceil(vocabularyData.length / groupSize);
+        const learnedWords = new Set();
+        
+        // DOM elements
+        const cardsContainer = document.getElementById('cardsContainer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const randomBtn = document.getElementById('randomBtn');
+        const categorySelect = document.getElementById('categorySelect');
+        const currentCardEl = document.getElementById('currentCard');
+        const totalCardsEl = document.getElementById('totalCards');
+        const learnedCountEl = document.getElementById('learnedCount');
+        const remainingCountEl = document.getElementById('remainingCount');
+        const masteryRateEl = document.getElementById('masteryRate');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Initialize
+        totalCardsEl.textContent = vocabularyData.length;
+        renderCards();
+        updateStats();
+        
+        // Event listeners
+        prevBtn.addEventListener('click', () => {
+            currentGroup = (currentGroup - 1 + totalGroups) % totalGroups;
+            renderCards();
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            currentGroup = (currentGroup + 1) % totalGroups;
+            renderCards();
+        });
+        
+        randomBtn.addEventListener('click', () => {
+            currentGroup = Math.floor(Math.random() * totalGroups);
+            renderCards();
+        });
+        
+        categorySelect.addEventListener('change', () => {
+            currentGroup = 0;
+            renderCards();
+        });
+        
+        // Functions
+        function renderCards() {
+            cardsContainer.innerHTML = '';
+            
+            const category = categorySelect.value;
+            const filteredData = category === 'all' 
+                ? vocabularyData 
+                : vocabularyData.filter(item => item.category === category);
+            
+            const startIndex = currentGroup * groupSize;
+            const groupData = filteredData.slice(startIndex, startIndex + groupSize);
+            
+            groupData.forEach((item, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
+                cardEl.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-category">${item.category}</div>
+                            <div class="english-word">${item.english}</div>
+                            <div class="hint">点击卡片查看中文释义</div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-category">${item.category}</div>
+                            <div class="chinese-meaning">${item.chinese}</div>
+                            <div class="hint">点击卡片返回英文</div>
+                        </div>
+                    </div>
+                `;
+                
+                cardEl.addEventListener('click', () => {
+                    cardEl.classList.toggle('flipped');
+                    
+                    // Mark as learned on first flip
+                    if (!learnedWords.has(item.english)) {
+                        learnedWords.add(item.english);
+                        updateStats();
+                    }
+                });
+                
+                cardsContainer.appendChild(cardEl);
+            });
+            
+            currentCardEl.textContent = startIndex + 1;
+        }
+        
+        function updateStats() {
+            const learned = learnedWords.size;
+            const remaining = vocabularyData.length - learned;
+            const masteryRate = Math.round((learned / vocabularyData.length) * 100);
+            
+            learnedCountEl.textContent = learned;
+            remainingCountEl.textContent = remaining;
+            masteryRateEl.textContent = `${masteryRate}%`;
+            
+            progressBar.style.width = `${masteryRate}%`;
+        }
+    </script>
+</body>
+</html>
